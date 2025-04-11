@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animated Login</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #0f2027;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    input {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      width: 250px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #00c6ff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <input type="text" id="username" placeholder="Enter Username" />
+    <input type="password" id="password" placeholder="Enter Password" />
+    <button id="submit">Submit</button>
+  </div>
+
+  <script>
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const submitBtn = document.getElementById("submit");
+
+    // Hide all initially
+    gsap.set([username, password, submitBtn], { autoAlpha: 0 });
+
+    // Step 1: Animate username in from left
+    gsap.fromTo(username, { x: -500, autoAlpha: 0 }, {
+      x: 0,
+      autoAlpha: 1,
+      duration: 1,
+      onComplete: () => {
+        setTimeout(() => {
+          // Animate username out to left
+          gsap.to(username, {
+            x: -500,
+            autoAlpha: 0,
+            duration: 1,
+            onComplete: () => {
+              // Animate password in from right
+              gsap.fromTo(password, { x: 500, autoAlpha: 0 }, {
+                x: 0,
+                autoAlpha: 1,
+                duration: 1,
+                onComplete: () => {
+                  setTimeout(() => {
+                    // Animate password out to right
+                    gsap.to(password, {
+                      x: 500,
+                      autoAlpha: 0,
+                      duration: 1,
+                      onComplete: () => {
+                        // Show both input fields again for user to type
+                        gsap.set([username, password], { x: 0, autoAlpha: 1 });
+                        // Wait for both inputs to be filled
+                        username.style.display = "block";
+                        password.style.display = "block";
+                      }
+                    });
+                  }, 1000);
+                }
+              });
+            }
+          });
+        }, 1000);
+      }
+    });
+
+    function checkInputs() {
+      if (username.value.trim() !== "" && password.value.trim() !== "") {
+        // Show submit button
+        gsap.to(submitBtn, {
+          autoAlpha: 1,
+          duration: 1,
+          y: -20
+        });
+      }
+    }
+
+    username.addEventListener("input", checkInputs);
+    password.addEventListener("input", checkInputs);
+
+    submitBtn.addEventListener("click", () => {
+      // Animate button disappear
+      gsap.to(submitBtn, {
+        y: -100,
+        scale: 0,
+        autoAlpha: 0,
+        duration: 1,
+        ease: "power2.inOut"
+      });
+    });
+  </script>
+</body>
+</html>

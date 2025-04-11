@@ -1,0 +1,31 @@
+{
+    "Auth_Header": {
+        "UserId": "khajooratours",
+        "Password": "3E2343BE313DAF0EE4F9D838B108CC51933D2239",
+        "IP_Address": "12333333",
+        "Request_Id": "5500887959052",
+        "IMEI_Number": "2232323232323"
+    },
+	"Travel_Type":0,
+	"Booking_Type":0,
+	"TripInfo":[
+        {
+            "Origin":"BOM",
+            "Destination":"MAA",
+            "TravelDate":"04/25/2025",
+            "Trip_Id":0
+        }
+	],
+	"Adult_Count":"1",
+	"Child_Count":"0",
+	"Infant_Count":"0",
+	"Class_Of_Travel":"0",
+	"InventoryType":0,
+    "Source_Type":0,
+    "Filtered_Airline": [
+        {
+        "Airline_Code": ""
+        }
+    ]
+    
+}
