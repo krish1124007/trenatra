@@ -30,10 +30,9 @@ function generateMachineData() {
     pressure += Math.random() > 0.5 ? 30 : -30;
   }
   
-  return {data:[
-    [temperature.toFixed(2), vibration.toFixed(2), pressure.toFixed(2), runtime.toFixed(2)]
+  return  [temperature.toFixed(2), vibration.toFixed(2), pressure.toFixed(2), runtime.toFixed(2)]
 
-  ]}
+  
 }
 
 export {generateMachineData}

@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { generateMachineData } from "../../machine_data.generater.js";
 import axios from "axios";
+import {mongoose} from "mongoose"
 
 
 const addMachine = asyncHandler(async (req, res) => {
@@ -76,8 +77,8 @@ const getAllMachines = asyncHandler(async (req, res) => {
 
 const getMachinesDetails = asyncHandler(async (req, res) => {
   const id = req.params.id;
-
-  const machine_data = await machine.findOne({ _id: id });
+  
+  const machine_data = await machine.findById(id);
 
   if (!machine_data) {
     return res.status(400)
@@ -90,7 +91,6 @@ const getMachinesDetails = asyncHandler(async (req, res) => {
       new ApiResponse(200, { succes: true, data: machine_data }, "fetch sucessfully")
     )
 })
-
 
 const startTraning = asyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -134,25 +134,53 @@ const startTraning = asyncHandler(async (req, res) => {
 
 })
 
-const startLive = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-  let count = 0;
 
-  const settime = setInterval(async() => {
-    if(count==1)
-    {
-      clearInterval(settime)
+const startLive = asyncHandler(async (req, res) => {
+  let count = 0;
+  const setime = setTimeout(async () => {
+    if (count == 1) {
+      clearTimeout(setime);
+      return;
     }
     count++;
+    
     const machineData = generateMachineData();
-    const data_check = await axios.get("http://localhost:5000/api/ml/check", {data:[machineData]})
+    console.log(machineData)
+    // 1. Get values and ensure they're numbers
+    const dataValues = machineData.map((e)=>{
+      console.log(parseFloat(e))
+      return parseFloat(e)
+    }); // Convert to numbers
+    console.log(dataValues)
+    // 2. Flatten the structure (remove extra nesting)
+    const flatData = dataValues.flat(Infinity); // Handles any level of nesting
+    
+    console.log("Sending data:", flatData); // Should log: [75.25, 2.35, 99.39, 1.36]
+    
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/ml/check", {
+        data: flatData // Send clean, flat array of numbers
+      });
 
-    return res.status(200)
-    .json(
-      new ApiResponse(200,{success:true , data:data_check},"data send sucessfully")
-    )
+      res.status(200).json(
+        new ApiResponse(200, { 
+          success: true, 
+          received: flatData,
+          response: data 
+        }, "Data sent successfully")
+      );
+    } catch (error) {
+      console.error("API Error:", {
+        request: flatData,
+        response: error.response?.data || error.message
+      });
+      res.status(500).json(
+        new ApiResponse(500, null, "Failed to process data")
+      );
+    }
   }, 2000);
 });
+
 
 
 export {
