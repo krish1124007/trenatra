@@ -92,94 +92,110 @@ const getMachinesDetails = asyncHandler(async (req, res) => {
     )
 })
 
-const startTraning = asyncHandler(async (req, res) => {
+const startTraining = asyncHandler(async (req, res) => {
   const id = req.params.id;
-  let i = 0;
-  const settime = setInterval(async () => {
-    if (i == 30) {
-      clearInterval(settime)
-    }
-    i++;
-    const machineData = generateMachineData();
-    try {
-      // Sending data to Flask endpoint for anomaly detection and training
-      const response = await axios.post('http://localhost:5000/api/ml/train_model', machineData);
-      console.log("✅ Machine data sent", response.data);
-    } catch (err) {
-      console.error("❌ Failed to send data:", err);
-    }
-  }, 2000);
-
-  const train_data = await axios.get("http://localhost:5000/api/ml/get_all_data");
-
-  if (!train_data.data || !Array.isArray(train_data.data.data)) {
-    return res.status(500).json({ success: false, message: "Training data is not in expected format" });
+  let trainingCompleted = false;
+  
+  // Clear any existing interval
+  if (req.intervalId) {
+    clearInterval(req.intervalId);
   }
 
-  // Store the array as a string (JSON)
-  const machine_Data = await machine.findByIdAndUpdate(
-    id,
-    {
-      machine_train_data: JSON.stringify(train_data.data.data),
-      machine_traine: true // mark machine as trained
-    },
-    { new: true }
-  );
-
-  res.status(200).json({
+  // Send initial response
+  res.status(202).json({
     success: true,
-    message: "Machine training data updated successfully",
-    data: machine_Data
+    message: 'Training started. 30 samples will be collected.'
   });
 
-})
+  let samplesSent = 0;
+  const intervalId = setInterval(async () => {
+    if (samplesSent >= 10 && !trainingCompleted) {
+      clearInterval(intervalId);
+      trainingCompleted = true;
+      
+      try {
+        // Get all training data
+        const response = await axios.get('http://localhost:5000/api/ml/get_all_data');
+        
+        if (!response.data?.success || !Array.isArray(response.data.data?.samples)) {
+          throw new Error('Invalid training data format');
+        }
 
+        // Save to database
+        const updatedMachine = await machine.findByIdAndUpdate(
+          id,
+          {
+            machine_train_data: JSON.stringify(response.data.data.samples),
+            machine_traine: true,
+            training_status: 'completed'
+          },
+          { new: true, upsert: true }
+        );
 
-const startLive = asyncHandler(async (req, res) => {
-  let count = 0;
-  const setime = setTimeout(async () => {
-    if (count == 1) {
-      clearTimeout(setime);
+        console.log('✅ Training data saved to DB:', updatedMachine._id);
+      } catch (err) {
+        console.error('❌ DB Save Error:', err.message);
+        await machine.findByIdAndUpdate(
+          id,
+          { training_status: 'failed', error: err.message },
+          { new: true }
+        );
+      }
       return;
     }
-    count++;
-    
-    const machineData = generateMachineData();
-    console.log(machineData)
-    // 1. Get values and ensure they're numbers
-    const dataValues = machineData.map((e)=>{
-      console.log(parseFloat(e))
-      return parseFloat(e)
-    }); // Convert to numbers
-    console.log(dataValues)
-    // 2. Flatten the structure (remove extra nesting)
-    const flatData = dataValues.flat(Infinity); // Handles any level of nesting
-    
-    console.log("Sending data:", flatData); // Should log: [75.25, 2.35, 99.39, 1.36]
-    
-    try {
-      const { data } = await axios.post("http://localhost:5000/api/ml/check", {
-        data: flatData // Send clean, flat array of numbers
-      });
 
-      res.status(200).json(
-        new ApiResponse(200, { 
-          success: true, 
-          received: flatData,
-          response: data 
-        }, "Data sent successfully")
-      );
-    } catch (error) {
-      console.error("API Error:", {
-        request: flatData,
-        response: error.response?.data || error.message
-      });
-      res.status(500).json(
-        new ApiResponse(500, null, "Failed to process data")
-      );
+    if (samplesSent < 30) {
+      samplesSent++;
+      const machineData = generateMachineData();
+      
+      try {
+        await axios.post('http://localhost:5000/api/ml/train_model', {
+          temperature: machineData[0],
+          vibration: machineData[1],
+          pressure: machineData[2],
+          runtime: machineData[3]
+        });
+        console.log(`📤 Sent sample ${samplesSent}/30`);
+      } catch (err) {
+        console.error(`❌ Failed sample ${samplesSent}:`, err.message);
+      }
     }
   }, 2000);
+
+  // Store interval ID for cleanup
+  req.intervalId = intervalId;
 });
+
+const startLive = asyncHandler(async (req, res) => {
+  
+  // Start monitoring
+ 
+    try {
+      const machineData = generateMachineData();
+      const response = await axios.post('http://localhost:5000/api/ml/check', {
+        data: machineData
+      });
+
+      if (response.data.success) {
+        
+          return res.status(200)
+          .json(
+            new ApiResponse(200,{succes:true , data:{ values: machineData,
+              isAnomaly: response.data.data.is_anomaly}},"fetch successfully")
+          )}
+
+        if (response.data.data.is_anomaly) {
+          console.warn('🚨 ANOMALY DETECTED!', machineData);
+        }
+      
+    } catch (err) {
+      console.error('Live monitoring error:', err.message);
+      clearInterval(liveInterval);
+    }
+ 
+
+});
+
 
 
 
@@ -189,6 +205,6 @@ export {
   deleteMachine,
   getAllMachines,
   getMachinesDetails,
-  startTraning,
+  startTraining,
   startLive
 }

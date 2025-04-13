@@ -18,6 +18,9 @@ const machine_schema = new mongoose.Schema({
         type:String,
         required:true
     },
+    machin_working_hours:{
+        type:String
+    },
     machine_comfort_parameters:[
         {
             temp:{
@@ -44,7 +47,21 @@ const machine_schema = new mongoose.Schema({
     },
     machine_train_data:{
         type:String
-    }
+    },
+    machine_last_data:{
+        type:String
+    },
+    machine_condition:{
+        type:String
+    },
+    machine_issue:{
+        type:String
+    },
+    machine_critical_pointes:[
+        {
+            type:String
+        }
+    ]
 },{timestamps:true})
 
 

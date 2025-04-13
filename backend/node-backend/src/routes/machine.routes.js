@@ -4,7 +4,7 @@ import {
     deleteMachine,
     getAllMachines,
     getMachinesDetails,
-    startTraning,
+    startTraining,
     startLive
 } from "../controllers/machine.controller.js"
 
@@ -13,12 +13,12 @@ import {Router} from "express";
 const router = Router();
 
 router.route("/createmachine").post(addMachine);
-router.route("/updatemachine").post(updateMachine);
 router.route("/deletemachine").post(deleteMachine);
 router.route("/getallmachines").get(getAllMachines);
 router.route("/livedata").get(startLive)
+router.route("/updatemachine/:id").post(updateMachine);
 router.route("/getmachine/:id").get(getMachinesDetails);
-router.route("/train/:id").get(startTraning);
+router.route("/train/:id").get(startTraining);
 
 const machine_router = router;
 
