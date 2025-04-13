@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Status - Admin Panel</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../../load.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    /* Dashboard Styles */
+    .main-content {
+      padding: 2rem;
+      background-color: #f8f9fa;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-header h2 {
+      color: #343a40;
+      font-size: 1.75rem;
+      margin: 0;
+    }
+
+    .time-filter select {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+      background-color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      border-left: 4px solid #4a6baf;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      background-color: rgba(74, 107, 175, 0.1);
+    }
+
+    .card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .card-content {
+      flex: 1;
+    }
+
+    .card-content h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #4a6baf;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-change {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .card-change svg {
+      margin-right: 0.25rem;
+    }
+
+    .positive {
+      color: #28a745;
+    }
+
+    .negative {
+      color: #dc3545;
+    }
+
+    .chart-container {
+      margin-top: 2rem;
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-header h3 {
+      margin: 0;
+      color: #343a40;
+      font-size: 1.25rem;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    .chart-wrapper {
+      height: 300px;
+      position: relative;
+    }
+
+    /* Animation */
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate__fadeInUp {
+      animation: floatIn 0.6s ease forwards;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Admin Panel</h1>
+        <button id="menuToggle" class="menu-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <nav class="nav-menu">
+        <a href="profile.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="5" />
+            <path d="M20 21a8 8 0 1 0-16 0" />
+          </svg>
+          Profile
+        </a>
+        <a href="machines.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2" />
+            <rect x="9" y="9" width="6" height="6" />
+            <line x1="9" y1="2" x2="9" y2="4" />
+            <line x1="15" y1="2" x2="15" y2="4" />
+            <line x1="9" y1="20" x2="9" y2="22" />
+            <line x1="15" y1="20" x2="15" y2="22" />
+            <line x1="20" y1="9" x2="22" y2="9" />
+            <line x1="20" y1="14" x2="22" y2="14" />
+            <line x1="2" y1="9" x2="4" y2="9" />
+            <line x1="2" y1="14" x2="4" y2="14" />
+          </svg>
+          Machines
+        </a>
+        <a href="add-machines.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 12h8" />
+            <path d="M12 8v8" />
+          </svg>
+          Add Machines
+        </a>
+        <a href="check-status.html" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          Check Status
+        </a>
+        <!-- Generate Report -->
+        <a href="generate-report.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Generate Report
+        </a>
+
+        <!-- Settings -->
+        <a href="settings.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+          Settings
+        </a>
+
+        <!-- Logout -->
+        <a href="logout.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Logout
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="dashboard-header">
+        <h2>Machines Dashboard</h2>
+        <div class="time-filter">
+          <select>
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+            <option>Last 90 Days</option>
+            <option>This Year</option>
+            <option selected>All Time</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cards-container">
+        <!-- Card 1: Total Machines -->
+        <div class="dashboard-card animate__animated animate__fadeInUp">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Total Machines</h3>
+            <div class="card-value" id="total_machine"></div>
+            <div class="card-change positive">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+              </svg>
+              +12% from last month
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Good Condition Machines -->
+        <div class="dashboard-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+          <div class="card-icon" style="background-color: rgba(40, 167, 69, 0.1);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Good Condition</h3>
+            <div class="card-value" style="color: #28a745;" id="total_good"></div>
+            <div class="card-change positive">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+              </svg>
+              +8% from last month
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Bad Condition Machines -->
+        <div class="dashboard-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+          <div class="card-icon" style="background-color: rgba(220, 53, 69, 0.1);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Needs Maintenance</h3>
+            <div class="card-value" style="color: #dc3545;" id="total_bad"></div>
+            <div class="card-change negative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+                <polyline points="16 17 22 17 22 11"></polyline>
+              </svg>
+              +3% from last month
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Maintenance Required -->
+        <div class="dashboard-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+          <div class="card-icon" style="background-color: rgba(255, 193, 7, 0.1);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="#ffc107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Maintenance Due</h3>
+            <div class="card-value" style="color: #ffc107;">16</div>
+            <div class="card-change negative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+                <polyline points="16 17 22 17 22 11"></polyline>
+              </svg>
+              +5% from last month
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-card animate__animated animate__fadeInUp">
+          <div class="chart-header">
+            <h3>Machine Condition Overview</h3>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: #28a745;"></span>
+                <span>Good Condition (83%)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: #dc3545;"></span>
+                <span>Needs Maintenance (17%)</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="conditionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+
+
+
+    </main>
+  </div>
+  <div id="loader" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../js/navigation.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../../load.js"></script>
+  <script>
+   let total_machines = 0;
+let total_good_condition = 0;
+let total_critical_condition = 0;
+let total_machine_p = document.getElementById('total_machine');
+let total_good_p = document.getElementById('total_good');
+let total_bad_p = document.getElementById('total_bad');
+
+axios.get('http://localhost:8000/machine/getallmachines')
+  .then((response) => {
+    const machines = response.data.data.data; // Assuming this is the correct path to your array
+    total_machines = machines.length;
+    
+    // Reset counters
+    total_good_condition = 0;
+    total_critical_condition = 0;
+    
+    for (let i = 0; i < machines.length; i++) {
+      // Case-insensitive comparison and trim whitespace
+      if (String(machines[i].machine_condition).toLowerCase().trim() === "good") {
+        total_good_condition++;
+      } else {
+        total_critical_condition++;
+      }
+    }
+    
+    // Update DOM elements
+    total_bad_p.textContent = total_critical_condition;
+    total_good_p.textContent = total_good_condition;
+    total_machine_p.textContent = total_machines;
+    
+    // Update chart with real data
+    updateChart(total_good_condition, total_critical_condition);
+  })
+  .catch((error) => {
+    console.error("Error fetching machine data:", error);
+  });
+
+function updateChart(goodCount, badCount) {
+  const total = goodCount + badCount;
+  const goodPercentage = total > 0 ? Math.round((goodCount / total) * 100) : 0;
+  const badPercentage = total > 0 ? Math.round((badCount / total) * 100) : 0;
+  
+  // Update the legend
+  document.querySelector('.legend-item:nth-child(1) span:last-child').textContent = 
+    `Good Condition (${goodPercentage}%)`;
+  document.querySelector('.legend-item:nth-child(2) span:last-child').textContent = 
+    `Needs Maintenance (${badPercentage}%)`;
+  
+  // Update the chart
+  const ctx = document.getElementById('conditionChart').getContext('2d');
+  const conditionChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Good Condition', 'Needs Maintenance'],
+      datasets: [{
+        data: [goodPercentage, badPercentage],
+        backgroundColor: ['#28a745', '#dc3545'],
+        borderWidth: 0,
+        cutout: '70%',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}%`;
+            }
+          }
+        }
+      },
+      animation: {
+        animateScale: true,
+        animateRotate: true
+      }
+    }
+  });
+}
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize chart
+      const ctx = document.getElementById('conditionChart').getContext('2d');
+      const conditionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Good Condition', 'Needs Maintenance'],
+          datasets: [{
+            data: [83, 17],
+            backgroundColor: ['#28a745', '#dc3545'],
+            borderWidth: 0,
+            cutout: '70%',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `${context.label}: ${context.raw}%`;
+                }
+              }
+            }
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true
+          }
+        }
+      });
+
+      // Add click effect to cards
+      const cards = document.querySelectorAll('.dashboard-card');
+      cards.forEach(card => {
+        card.addEventListener('click', function () {
+          this.classList.add('animate__pulse');
+          setTimeout(() => {
+            this.classList.remove('animate__pulse');
+          }, 500);
+        });
+      });
+    });
+  </script>
+  <script src="../js/navigation.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../../load.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Password</title>
+  <link rel="stylesheet" href="../load.css">
+  <style>
+    body {
+      background-color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #70b0de; /* dark sea blue */
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #cce3f0;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .email-input {
+      margin-bottom: 20px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .code-inputs {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .code-inputs input {
+      width: 45px;
+      height: 55px;
+      text-align: center;
+      font-size: 24px;
+      border: 2px solid #0096c7;
+      background-color: #023e8a;
+      border-radius: 10px;
+      color: white;
+      transition: border 0.2s;
+    }
+
+    .code-inputs input:focus {
+      border: 2px solid #00d4ff;
+      outline: none;
+    }
+
+    .btn {
+      background-color: #00d4ff;
+      color: black;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .link {
+      color: #90e0ef;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #cce3f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verify your code</h2>
+    <p>Enter your email and the 6-digit code sent to it. The code is valid for 10 minutes.</p>
+
+    <div class="email-input">
+      <input type="email" placeholder="Enter your email" id="email" />
+    </div>
+
+    <div class="code-inputs">
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+    </div>
+
+    <button class="btn" onclick="submitCode()">submit</button>
+    <div>
+      Didn’t get the code? <span class="link" onclick="resendCode()">Resend code</span>
+    </div>
+    <p id="waring"></p>
+
+    <div class="footer">
+      <span>Need help?</span>
+      <span>Send feedback</span>
+    </div>
+  </div>
+
+  <div id="loader" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../load.js"></script>
+  <script src="./vrf.js"></script>
+</body>
+</html>

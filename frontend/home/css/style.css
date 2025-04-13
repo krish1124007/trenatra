@@ -1,0 +1,366 @@
+/* Base styles */
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --sidebar-width: 250px;
+    --header-height: 60px;
+    --sidebar-bg: #1e1e2d;
+    --content-bg: #f3f4f6;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--content-bg);
+    color: #111827;
+  }
+  
+  /* Layout */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
+    /* background: #1a3e72; */
+	background: -webkit-linear-gradient(to right, #669fbe, #74bad8);
+	background: linear-gradient(to right, #8dbfdc, #c0dcea);
+    color: rgb(0, 0, 0);
+    padding: 1rem;
+    transition: transform 0.3s ease;
+    
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+  }
+  
+  .sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+  }
+  
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: rgba(0, 0, 0, 0.7);
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+  
+  .nav-item:hover,
+  .nav-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  
+  .content-section {
+    display: none;
+  }
+  
+  .content-section.active {
+    display: block;
+  }
+  
+  h2 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111827;
+  }
+  
+  /* Profile Section */
+  .profile-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .profile-image {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .profile-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .role {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+  }
+  
+  .info-group {
+    margin-bottom: 1rem;
+  }
+  
+  .info-group label {
+    font-weight: 500;
+    color: #374151;
+    margin-right: 0.5rem;
+  }
+  
+  /* Machines Section */
+  .machines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .machine-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .machine-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .status.active {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  
+  .status.idle {
+    background-color: #fef9c3;
+    color: #854d0e;
+  }
+  
+  .machine-info p {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Add Machines Form */
+  .add-machine-form {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .form-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  
+  .form-group input[type="date"] {
+    padding: 0.625rem 0.75rem;
+  }
+  
+  .btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .btn-submit:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+  
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+  
+  /* Status Section */
+  .status-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .status-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .status-indicator {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 1rem auto;
+    position: relative;
+  }
+  
+  .status-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+  
+  .status-indicator.good {
+    background-color: #dcfce7;
+  }
+  
+  .status-indicator.good::after {
+    background-color: #22c55e;
+  }
+  
+  .status-indicator.warning {
+    background-color: #fef9c3;
+  }
+  
+  .status-indicator.warning::after {
+    background-color: #eab308;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 50;
+      transform: translateX(-100%);
+    }
+  
+    .sidebar.active {
+      transform: translateX(0);
+    }
+  
+    .menu-toggle {
+      display: block;
+    }
+  
+    .main-content {
+      padding: 1rem;
+    }
+  
+    .profile-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  
+    .machines-grid {
+      grid-template-columns: 1fr;
+    }
+  }

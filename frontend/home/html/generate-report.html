@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Details - Admin Panel</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Main content styling - won't affect navigation */
+        main {
+            padding: 2rem;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .machine-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .machine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .machine-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .select-machine {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .select-machine label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .select-machine select {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            font-size: 1rem;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .select-machine select:focus {
+            border-color: #4a6baf;
+            box-shadow: 0 0 0 0.25rem rgba(74, 107, 175, 0.25);
+            outline: none;
+        }
+
+        .machine-details-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .machine-details-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background-color: #4a6baf;
+            color: white;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .detail-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .detail-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #343a40;
+            padding: 0.75rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #4a6baf;
+        }
+
+        .sensor-readings {
+            margin-top: 2rem;
+        }
+
+        .sensor-readings h4 {
+            color: #4a6baf;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .btn-download {
+            background-color: #4a6baf;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .btn-download:hover {
+            background-color: #3a5a9f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 107, 175, 0.3);
+        }
+
+        .btn-download svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Animation for card entry */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .machine-details-card {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* PDF-specific styles */
+        @media print {
+            #machineDetails {
+                background-color: white !important;
+                opacity: 1 !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Your existing sidebar navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Admin Panel</h1>
+                <button id="menuToggle" class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="12" x2="20" y2="12" />
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="4" y1="18" x2="20" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="nav-menu">
+                <a href="profile.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                    Profile
+                </a>
+                <a href="machines.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" />
+                        <rect x="9" y="9" width="6" height="6" />
+                        <line x1="9" y1="2" x2="9" y2="4" />
+                        <line x1="15" y1="2" x2="15" y2="4" />
+                        <line x1="9" y1="20" x2="9" y2="22" />
+                        <line x1="15" y1="20" x2="15" y2="22" />
+                        <line x1="20" y1="9" x2="22" y2="9" />
+                        <line x1="20" y1="14" x2="22" y2="14" />
+                        <line x1="2" y1="9" x2="4" y2="9" />
+                        <line x1="2" y1="14" x2="4" y2="14" />
+                    </svg>
+                    Machines
+                </a>
+                <a href="add-machines.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M8 12h8" />
+                        <path d="M12 8v8" />
+                    </svg>
+                    Add Machines
+                </a>
+                <a href="check-status.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                    Check Status
+                </a>
+                <!-- Generate Report -->
+                <a href="generate-report.html" class="nav-item active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Generate Report
+                </a>
+
+                <!-- Settings -->
+                <a href="settings.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    Settings
+                </a>
+
+                <!-- Logout -->
+                <a href="logout.html" class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </a>
+            </nav>
+        </aside>
+
+        <main>
+            <div class="machine-container">
+                <div class="machine-header">
+                    <h2>Machine Details</h2>
+                    <div class="select-machine">
+                        <label for="machineSelect">Select Machine:</label>
+                        <select id="machineSelect" class="form-select">
+                            <option value="">-- Select a Machine --</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="machine-details-card" id="machineDetails">
+                    <div class="card-header">
+                        <h3>Machine Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="detail-row">
+                            <div class="detail-group">
+                                <span class="detail-label">Machine Name</span>
+                                <div class="detail-value" id="machineName">CNC Lathe #1</div>
+                            </div>
+                            <div class="detail-group">
+                                <span class="detail-label">Machine Model</span>
+                                <div class="detail-value" id="machineModel">HAAS ST-20</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-group">
+                                <span class="detail-label">Machine ID</span>
+                                <div class="detail-value" id="machineId">M001</div>
+                            </div>
+                            <div class="detail-group">
+                                <span class="detail-label">Serial Number</span>
+                                <div class="detail-value" id="serialNumber">SN-2023-0456</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-group">
+                                <span class="detail-label">Machine Condition</span>
+                                <div class="detail-value" id="machineCondition" style="color: #28a745;">Good</div>
+                            </div>
+                            <div class="detail-group">
+                                <span class="detail-label">Last Service Date</span>
+                                <div class="detail-value" id="lastServiceDate">2023-10-15</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-group">
+                                <span class="detail-label">Current Issues</span>
+                                <div class="detail-value" id="machineIssues">None</div>
+                            </div>
+                        </div>
+
+                        <div class="sensor-readings">
+                            <h4>Latest Sensor Readings</h4>
+                            <div class="detail-row">
+                                <div class="detail-group">
+                                    <span class="detail-label">Temperature</span>
+                                    <div class="detail-value" id="temperature">22.5°C</div>
+                                </div>
+                                <div class="detail-group">
+                                    <span class="detail-label">Pressure</span>
+                                    <div class="detail-value" id="pressure">1.2 MPa</div>
+                                </div>
+                                <div class="detail-group">
+                                    <span class="detail-label">Vibration</span>
+                                    <div class="detail-value" id="vibration">Low</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn-download" id="downloadPdf">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download Report
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    const machineSelect = document.getElementById('machineSelect');
+    const download_report_btn = document.getElementById('downloadPdf'); // Changed to match your button ID
+
+    // Basic Info elements
+    const machine_name = document.getElementById("machineName");
+    const machine_model = document.getElementById("machineModel");
+    const machine_id = document.getElementById("machineId");
+    const serial_number = document.getElementById("serialNumber");
+
+    // Maintenance elements
+    const machine_condition = document.getElementById("machineCondition");
+    const last_service_date = document.getElementById("lastServiceDate");
+    const machine_issues = document.getElementById("machineIssues");
+
+    // Sensor Readings elements
+    const temperature = document.getElementById("temperature");
+    const pressure = document.getElementById("pressure");
+    const vibration = document.getElementById("vibration");
+
+    let machines = [];
+
+    // Fetch machines data
+    axios.get("http://localhost:8000/machine/getallmachines")
+        .then((response) => {
+            machines = response.data.data.data;
+            populateMachineSelect(machines);
+        })
+        .catch(err => {
+            console.error("Error fetching machines:", err);
+        });
+
+    function populateMachineSelect(machines) {
+        machines.forEach(machine => {
+            const option = document.createElement('option');
+            option.value = machine._id;
+            option.textContent = `${machine.machine_name} (ID: ${machine._id})`;
+            machineSelect.appendChild(option);
+        });
+    }
+
+    // Machine select change handler
+    machineSelect.addEventListener("change", () => {
+        const selectedId = machineSelect.value;
+        const selectedMachine = machines.find(m => m._id === selectedId);
+
+        if (selectedMachine) {
+            updateMachineDetails(selectedMachine);
+        }
+    });
+
+    function updateMachineDetails(machine) {
+        machine_name.textContent = machine.machine_name;
+        machine_model.textContent = machine.machine_model;
+        machine_id.textContent = machine._id;
+        serial_number.textContent = machine.serial_number;
+        machine_condition.textContent = machine.machine_condition;
+        machine_issues.textContent = machine.machine_issue || 'None';
+        last_service_date.textContent = machine.last_service_date;
+
+        // Update condition color based on status
+        updateConditionColor(machine.machine_condition);
+
+        if (machine.machine_comfort_parameters?.length > 0) {
+            const params = machine.machine_comfort_parameters[0];
+            temperature.textContent = params.temp ? `${params.temp}°C` : 'N/A';
+            pressure.textContent = params.power_usage ? `${params.power_usage} MPa` : 'N/A';
+            vibration.textContent = params.vibration || 'N/A';
+        } else {
+            temperature.textContent = 'N/A';
+            pressure.textContent = 'N/A';
+            vibration.textContent = 'N/A';
+        }
+    }
+
+    function updateConditionColor(condition) {
+        const colors = {
+            'Good': '#28a745',
+            'Warning': '#ffc107',
+            'Critical': '#dc3545'
+        };
+        machine_condition.style.color = colors[condition] || '#6c757d';
+    }
+
+    // PDF Generation with proper styling and positioning
+    download_report_btn.addEventListener('click', async () => {
+        const element = document.getElementById('machineDetails');
+        const originalStyles = {
+            width: element.style.width,
+            margin: element.style.margin,
+            boxShadow: element.style.boxShadow,
+            transform: element.style.transform
+        };
+
+        // Apply temporary PDF styles
+        element.style.width = '800px';
+        element.style.margin = '0 auto';
+        element.style.boxShadow = 'none';
+        element.style.transform = 'none';
+
+        // Create a clone for PDF generation
+        const clonedElement = element.cloneNode(true);
+        clonedElement.id = 'machineDetails-pdf';
+
+        // Apply PDF-specific styles to clone
+        clonedElement.style.backgroundColor = '#ffffff';
+        clonedElement.style.opacity = '1';
+        clonedElement.style.position = 'absolute';
+        clonedElement.style.left = '0';
+        clonedElement.style.top = '0';
+
+        // Create temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.left = '0';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = '800px';
+        tempContainer.style.zIndex = '9999';
+        tempContainer.style.visibility = 'hidden';
+        tempContainer.appendChild(clonedElement);
+        document.body.appendChild(tempContainer);
+
+        try {
+            const opt = {
+                margin: [10, 10, 10, 10], // Small margin to prevent cutting
+                filename: `${machine_name.textContent.replace(/\s+/g, '_')}_Report.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 800,
+                    backgroundColor: '#FFFFFF'
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait',
+                    hotfixes: ['px_scaling']
+                }
+            };
+
+            await html2pdf().set(opt).from(clonedElement).save();
+        } catch (error) {
+            console.error('PDF generation failed:', error);
+            alert('Failed to generate PDF. Please try again.');
+        } finally {
+            // Clean up
+            document.body.removeChild(tempContainer);
+            // Restore original styles
+            element.style.width = originalStyles.width;
+            element.style.margin = originalStyles.margin;
+            element.style.boxShadow = originalStyles.boxShadow;
+            element.style.transform = originalStyles.transform;
+        }
+    });
+</script>
+
+
+</body>
+
+</html>

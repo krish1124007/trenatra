@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Performance Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../../load.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Add these new styles */
+        main{
+          margin-left: 100px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .status-good {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-critical {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .maintenance-tips {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tip-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tip-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>Admin Panel</h1>
+          <button id="menuToggle" class="menu-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+        </div>
+        <nav class="nav-menu">
+          <a href="profile.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            Profile
+          </a>
+          <a href="machines.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+            Machines
+          </a>
+          <a href="add-machines.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+            Add Machines
+          </a>
+          <a href="check-status.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Check Status
+          </a>
+          <!-- Generate Report -->
+  <a href="generate-report.html" class="nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+    Generate Report
+  </a>
+  
+  <!-- Settings -->
+  <a href="settings.html" class="nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+    Settings
+  </a>
+  
+  <!-- Logout -->
+  <a href="logout.html" class="nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+      <polyline points="16 17 21 12 16 7"></polyline>
+      <line x1="21" y1="12" x2="9" y2="12"></line>
+    </svg>
+    Logout
+  </a>
+        </nav>
+      </aside>
+
+        <main>
+            <div class="chart-container">
+                <canvas id="myChart" width="600" height="300"></canvas>
+            </div>
+            
+            <!-- Add this new metrics section -->
+            <div class="metrics-grid" id="machineMetrics">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            
+            <!-- Add this new maintenance tips section -->
+            <div class="maintenance-tips" id="maintenanceTips">
+                <h3>Maintenance Recommendations</h3>
+                <div id="tipsContainer">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../load.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/navigation.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const id = localStorage.getItem("_id");
+        let myChart;
+        let machineData = {}; // Store all machine data
+
+        // Initialize empty chart
+        initializeEmptyChart();
+
+        if (id) {
+            loadMachineData();
+        } else {
+            console.error("No machine ID found in localStorage");
+        }
+
+        function initializeEmptyChart() {
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Temperature (°C)',
+                            data: [],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Pressure (kPa)',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Vibration (mm/s)',
+                            data: [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Time', color: '#6b7280' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Values', color: '#6b7280' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadMachineData() {
+            try {
+                // Load machine data
+                const response = await axios.get(`http://localhost:8000/machine/getmachine/${id}`);
+                machineData = response.data.data.data;
+                
+                // Process training data
+                let traindata = machineData.machine_train_data;
+                if (typeof traindata === 'string') {
+                    traindata = JSON.parse(traindata);
+                }
+                
+                if (Array.isArray(traindata)) {
+                    const value1 = traindata.map(e => e[0]); // Temperature
+                    const value2 = traindata.map(e => e[1]); // Pressure
+                    const value3 = traindata.map(e => e[2]); // Vibration
+                    const timeLabels = traindata.map((_, i) => `T${i+1}`);
+                    
+                    // Update chart
+                    myChart.data.labels = timeLabels;
+                    myChart.data.datasets[0].data = value1;
+                    myChart.data.datasets[1].data = value2;
+                    myChart.data.datasets[2].data = value3;
+                    myChart.update();
+                }
+                
+                // Calculate metrics and display
+                displayMachineMetrics();
+                
+                // Generate maintenance tips
+                generateMaintenanceTips();
+                
+            } catch (error) {
+                console.error("Error loading machine data:", error);
+                alert("Failed to load machine data. Check console for details.");
+            }
+        }
+
+        function displayMachineMetrics() {
+            // Calculate averages from the training data
+            let traindata = machineData.machine_train_data;
+            if (typeof traindata === 'string') {
+                traindata = JSON.parse(traindata);
+            }
+            
+            const metricsContainer = document.getElementById('machineMetrics');
+            
+            if (!Array.isArray(traindata) || traindata.length === 0) {
+                metricsContainer.innerHTML = '<div class="metric-card">No data available</div>';
+                return;
+            }
+            
+            // Calculate averages
+            const tempValues = traindata.map(e => e[0]);
+            const pressureValues = traindata.map(e => e[1]);
+            const vibrationValues = traindata.map(e => e[2]);
+            const runtimeValues = traindata.map(e => e[3]);
+            
+            const avgTemp = calculateAverage(tempValues).toFixed(2);
+            const avgPressure = calculateAverage(pressureValues).toFixed(2);
+            const avgVibration = calculateAverage(vibrationValues).toFixed(2);
+            const totalRuntime = calculateSum(runtimeValues).toFixed(2);
+            
+            // Determine machine status
+            const machineStatus = assessMachineHealth(
+                avgTemp, 
+                avgPressure, 
+                avgVibration, 
+                machineData.last_service_date
+            );
+            
+            metricsContainer.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">Average Temperature</div>
+                    <div class="metric-value">${avgTemp} °C</div>
+                    <div class="status-indicator ${getStatusClass(machineStatus.tempStatus)}">
+                        ${machineStatus.tempStatus}
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average Pressure</div>
+                    <div class="metric-value">${avgPressure} kPa</div>
+                    <div class="status-indicator ${getStatusClass(machineStatus.pressureStatus)}">
+                        ${machineStatus.pressureStatus}
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average Vibration</div>
+                    <div class="metric-value">${avgVibration} mm/s</div>
+                    <div class="status-indicator ${getStatusClass(machineStatus.vibrationStatus)}">
+                        ${machineStatus.vibrationStatus}
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Runtime</div>
+                    <div class="metric-value">${totalRuntime} hrs</div>
+                    <div class="status-indicator ${getStatusClass(machineStatus.runtimeStatus)}">
+                        ${machineStatus.runtimeStatus}
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Overall Status</div>
+                    <div class="metric-value">${machineStatus.overallStatus}</div>
+                    <div class="status-indicator ${getStatusClass(machineStatus.overallStatus)}">
+                        ${getStatusText(machineStatus.overallScore)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function calculateAverage(values) {
+            return values.reduce((a, b) => a + b, 0) / values.length;
+        }
+        
+        function calculateSum(values) {
+            return values.reduce((a, b) => a + b, 0);
+        }
+        
+        function assessMachineHealth(avgTemp, avgPressure, avgVibration, lastServiceDate) {
+            // Thresholds (adjust based on your machine specifications)
+            const tempThresholds = { good: 70, warning: 85, critical: 95 };
+            const pressureThresholds = { good: 100, warning: 130, critical: 150 };
+            const vibrationThresholds = { good: 2.5, warning: 3.5, critical: 5 };
+            
+            // Calculate days since last service
+            const serviceDate = new Date(lastServiceDate);
+            const daysSinceService = Math.floor((new Date() - serviceDate) / (1000 * 60 * 60 * 24));
+            
+            // Determine status for each parameter
+            const tempStatus = getParameterStatus(avgTemp, tempThresholds);
+            const pressureStatus = getParameterStatus(avgPressure, pressureThresholds);
+            const vibrationStatus = getParameterStatus(avgVibration, vibrationThresholds);
+            
+            // Determine runtime status based on days since service
+            let runtimeStatus = 'Good';
+            if (daysSinceService > 180) runtimeStatus = 'Critical';
+            else if (daysSinceService > 90) runtimeStatus = 'Warning';
+            
+            // Calculate overall score (0-100)
+            let overallScore = 100;
+            
+            // Deduct points based on parameter status
+            if (tempStatus === 'Warning') overallScore -= 15;
+            if (tempStatus === 'Critical') overallScore -= 30;
+            if (pressureStatus === 'Warning') overallScore -= 15;
+            if (pressureStatus === 'Critical') overallScore -= 30;
+            if (vibrationStatus === 'Warning') overallScore -= 15;
+            if (vibrationStatus === 'Critical') overallScore -= 30;
+            if (runtimeStatus === 'Warning') overallScore -= 10;
+            if (runtimeStatus === 'Critical') overallScore -= 20;
+            
+            // Determine overall status
+            let overallStatus = 'Excellent';
+            if (overallScore < 90) overallStatus = 'Good';
+            if (overallScore < 70) overallStatus = 'Needs Attention';
+            if (overallScore < 50) overallStatus = 'Critical';
+            
+            return {
+                tempStatus,
+                pressureStatus,
+                vibrationStatus,
+                runtimeStatus,
+                overallStatus,
+                overallScore,
+                daysSinceService
+            };
+        }
+        
+        function getParameterStatus(value, thresholds) {
+            if (value <= thresholds.good) return 'Good';
+            if (value <= thresholds.warning) return 'Warning';
+            return 'Critical';
+        }
+        
+        function getStatusClass(status) {
+            if (status === 'Good' || status === 'Excellent') return 'status-good';
+            if (status === 'Warning' || status === 'Needs Attention') return 'status-warning';
+            return 'status-critical';
+        }
+        
+        function getStatusText(score) {
+            if (score >= 90) return 'Optimal Condition';
+            if (score >= 70) return 'Normal Operation';
+            if (score >= 50) return 'Needs Maintenance';
+            return 'Immediate Attention Required';
+        }
+        
+        function generateMaintenanceTips() {
+            const tipsContainer = document.getElementById('tipsContainer');
+            const status = assessMachineHealth(
+                calculateAverage(machineData.machine_train_data.map(e => e[0])),
+                calculateAverage(machineData.machine_train_data.map(e => e[1])),
+                calculateAverage(machineData.machine_train_data.map(e => e[2])),
+                machineData.last_service_date
+            );
+            
+            let tips = [];
+            
+            // Temperature-related tips
+            if (status.tempStatus === 'Warning') {
+                tips.push('Temperature is slightly high. Check cooling systems and ventilation.');
+            } else if (status.tempStatus === 'Critical') {
+                tips.push('CRITICAL: Temperature too high! Immediate cooling system inspection required.');
+            }
+            
+            // Pressure-related tips
+            if (status.pressureStatus === 'Warning') {
+                tips.push('Pressure levels elevated. Recommend checking seals and pressure regulators.');
+            } else if (status.pressureStatus === 'Critical') {
+                tips.push('CRITICAL: Pressure dangerously high! Shut down and inspect immediately.');
+            }
+            
+            // Vibration-related tips
+            if (status.vibrationStatus === 'Warning') {
+                tips.push('Increased vibration detected. Schedule bearing and alignment check.');
+            } else if (status.vibrationStatus === 'Critical') {
+                tips.push('CRITICAL: Excessive vibration! Possible mechanical failure imminent.');
+            }
+            
+            // Service-related tips
+            if (status.daysSinceService > 90) {
+                tips.push(`Last service was ${status.daysSinceService} days ago. Scheduled maintenance overdue.`);
+            }
+            
+            // General tips based on overall score
+            if (status.overallScore < 70) {
+                tips.push('Machine performance degraded. Recommend comprehensive diagnostic check.');
+            }
+            if (status.overallScore < 50) {
+                tips.push('WARNING: Machine in critical condition. Consider taking offline for maintenance.');
+            }
+            
+            // If no specific issues, show positive message
+            if (tips.length === 0) {
+                tips.push('Machine operating within normal parameters. Next routine maintenance due in ' + 
+                         (180 - status.daysSinceService) + ' days.');
+            }
+            
+            // Display the tips
+            tipsContainer.innerHTML = tips.map(tip => 
+                `<div class="tip-item">${tip}</div>`
+            ).join('');
+            
+            // Add predictive maintenance suggestion
+            const nextServiceDays = predictNextServiceDate(status);
+            tipsContainer.innerHTML += `
+                <div class="tip-item">
+                    <strong>Predictive Maintenance:</strong> Recommended next service in ${nextServiceDays} days
+                    (around ${formatFutureDate(nextServiceDays)})
+                </div>
+            `;
+        }
+        
+        function predictNextServiceDate(status) {
+            // Simple predictive algorithm - adjust weights based on your experience
+            let daysToNextService = 180; // Default 6 months
+            
+            // Reduce interval based on issues
+            if (status.tempStatus === 'Warning') daysToNextService -= 30;
+            if (status.tempStatus === 'Critical') daysToNextService -= 60;
+            if (status.pressureStatus === 'Warning') daysToNextService -= 30;
+            if (status.pressureStatus === 'Critical') daysToNextService -= 60;
+            if (status.vibrationStatus === 'Warning') daysToNextService -= 30;
+            if (status.vibrationStatus === 'Critical') daysToNextService -= 60;
+            
+            // Ensure minimum 7 days
+            return Math.max(7, daysToNextService);
+        }
+        
+        function formatFutureDate(daysToAdd) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysToAdd);
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+</html>

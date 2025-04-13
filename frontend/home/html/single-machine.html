@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Machines - Admin Panel</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../../load.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Enhanced Styles */
+    body{
+      background-image:url("../../../images/gearwheel1.gif") ;
+      background-repeat: no-repeat;
+      background-size: 100 100;
+      object-fit: cover;
+    }
+    .machine-detail-container {
+      background:transparent;
+      min-height: 100vh;
+      padding: 2rem;
+      width: 1000px;
+    }
+    
+    .detail-card {
+      background: rgba(255, 255, 255, 0.745);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+
+    }
+    
+    .detail-header {
+      background: linear-gradient(135deg, #63c6f1 0%, #5cc3f6 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+    
+    .detail-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .machine-status {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    
+    .detail-content {
+      padding: 2rem;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .info-item {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .info-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .parameter-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      border: 1px solid #e5e7eb;
+      transition: transform 0.2s ease;
+    }
+    
+    .parameter-card:hover {
+      transform: translateY(-3px);
+    }
+    
+    .parameter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    
+    .parameter-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .parameter-icon {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+    
+    .parameter-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    
+    .parameter-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      z-index: 5;
+    }
+    
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+    }
+    
+    .train-btn {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .train-btn:hover {
+      border: 1px solid black;
+      background: #2563eb;
+      transform: translateY(-2px);
+    }
+    
+    .live-btn {
+      background: #10b981;
+      color: white;
+    }
+    
+    .live-btn:hover {
+      background: #059669;
+      /* transform: translateY(-2px); */
+    }
+    
+    .more-btn {
+      background: #8b5cf6;
+      color: white;
+    }
+    
+    .more-btn:hover {
+      background: #7c3aed;
+      transform: translateY(-2px);
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-trained {
+      background-color: #ecfdf5;
+      color: #059669;
+    }
+    
+    .status-untrained {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+    
+    @media (max-width: 640px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="layout">
+    <!-- Unchanged Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Admin Panel</h1>
+        <button id="menuToggle" class="menu-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+      </div>
+      <nav class="nav-menu">
+        <a href="profile.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          Profile
+        </a>
+        <a href="machines.html" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+          Machines
+        </a>
+        <a href="add-machines.html" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+          Add Machines
+        </a>
+        <a href="check-status.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Check Status
+        </a>
+        <!-- Generate Report -->
+<a href="generate-report.html" class="nav-item">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <polyline points="10 9 9 9 8 9"></polyline>
+  </svg>
+  Generate Report
+</a>
+
+<!-- Settings -->
+<a href="settings.html" class="nav-item">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+  Settings
+</a>
+
+<!-- Logout -->
+<a href="logout.html" class="nav-item">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>
+  Logout
+</a>
+      </nav>
+    </aside>
+    
+    <!-- Enhanced Main Content -->
+    <main class="machine-detail-container">
+      <div class="detail-card">
+        <div class="detail-header">
+          <h1>Machine Details</h1>
+          <div class="machine-status">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+              <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>
+            </svg>
+            Machine ID: <span id="machineIdDisplay"></span>
+          </div>
+        </div>
+        
+        <div class="detail-content">
+          <div class="info-grid" id="basicInfo">
+            <!-- Basic info will be inserted here -->
+          </div>
+          
+          <h2 class="section-title">Performance Parameters</h2>
+          <div id="parameterContainer">
+            <!-- Parameters will be inserted here -->
+          </div>
+          
+          <div class="action-buttons">
+            <!-- Train Button -->
+            <button id="trainBtn" class="action-btn train-btn hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+              </svg>
+              Start Training
+            </button>
+            
+            <!-- Live Button -->
+            <button id="liveBtn" class="action-btn live-btn hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+              </svg>
+              Go Live
+            </button>
+            
+            <!-- More Button -->
+            <button id="moreBtn" class="action-btn more-btn hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              More Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Loader -->
+  <div id="loader" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+ 
+  <script src="../../load.js"></script>
+  <script>
+    const id = localStorage.getItem("_id");
+    const basicInfoDiv = document.getElementById("basicInfo");
+    const parameterContainer = document.getElementById("parameterContainer");
+    const trainBtn = document.getElementById("trainBtn");
+    const liveBtn = document.getElementById("liveBtn");
+    const moreBtn = document.getElementById("moreBtn");
+    const machineIdDisplay = document.getElementById("machineIdDisplay");
+
+    if (!id) {
+      basicInfoDiv.innerHTML = `
+        <div class="col-span-full text-center py-8">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h3 class="text-lg font-semibold text-red-600">No machine selected</h3>
+          <p class="text-gray-600">Please select a machine from the machines page</p>
+        </div>
+      `;
+    } else {
+      // Display machine ID in header
+      machineIdDisplay.textContent = id.substring(0, 8) + '...';
+      
+      axios.get(`http://localhost:8000/machine/getmachine/${id}`)
+        .then(res => {
+          const machine = res.data.data.data;
+          
+          // Basic Info
+          basicInfoDiv.innerHTML = `
+            <div class="info-item">
+              <span class="info-label">Machine Name</span>
+              <span class="info-value">${machine.machine_name || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Model</span>
+              <span class="info-value">${machine.machine_model || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Serial Number</span>
+              <span class="info-value">${machine.serial_number || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Last Service</span>
+              <span class="info-value">${machine.last_service_date || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span class="status-badge ${machine.machine_traine ? 'status-trained' : 'status-untrained'}">
+                ${machine.machine_traine ? 'Trained' : 'Not Trained'}
+              </span>
+            </div>
+          `;
+          
+          // Parameters
+          if (machine.machine_comfort_parameters && machine.machine_comfort_parameters.length > 0) {
+            parameterContainer.innerHTML = machine.machine_comfort_parameters.map(param => `
+              <div class="parameter-card">
+                <div class="parameter-grid">
+                  <div class="parameter-item">
+                    <span class="parameter-label">🌡 Temperature</span>
+                    <span class="parameter-value">${param.temp || 'N/A'}°C</span>
+                  </div>
+                  <div class="parameter-item">
+                    <span class="parameter-label">🔧 Vibration</span>
+                    <span class="parameter-value">${param.vibration || 'N/A'} mm/s</span>
+                  </div>
+                  <div class="parameter-item">
+                    <span class="parameter-label">⚡ Power Usage</span>
+                    <span class="parameter-value">${param.power_usage || 'N/A'} kW</span>
+                  </div>
+                  <div class="parameter-item">
+                    <span class="parameter-label">⏱ Runtime</span>
+                    <span class="parameter-value">${param.avarage_runtime || 'N/A'} hrs</span>
+                  </div>
+                </div>
+              </div>
+            `).join("");
+          } else {
+            parameterContainer.innerHTML = `
+              <div class="text-center py-8 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                No performance parameters available
+              </div>
+            `;
+          }
+
+         // Enhanced button visibility control
+const isTrained = machine.machine_traine === true || machine.machine_traine === "true";
+console.log("Is machine trained?", isTrained);
+
+// Reset all buttons first
+[trainBtn, liveBtn, moreBtn].forEach(btn => {
+  btn.classList.remove("hidden");
+  btn.style.display = "inline-flex";
+  btn.style.opacity = "1";
+});
+
+// Apply correct visibility
+if (isTrained) {
+  trainBtn.classList.add("hidden");
+} else {
+  liveBtn.classList.add("hidden");
+  moreBtn.classList.add("hidden");
+}
+
+          // GSAP animations
+          gsap.from(".detail-card", {
+            duration: 0.8,
+            y: 30,
+            opacity: 0,
+            ease: "back.out(1)"
+          });
+          
+          gsap.from(".info-item", {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.3
+          });
+          
+          gsap.from(".parameter-card", {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.6
+          });
+          
+          gsap.from(".action-btn", {
+            duration: 0.5,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.9
+          });
+        })
+        .catch(err => {
+          console.error("Error loading machine details", err);
+          basicInfoDiv.innerHTML = `
+            <div class="col-span-full text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <h3 class="text-lg font-semibold text-red-600">Failed to load machine details</h3>
+              <p class="text-gray-600">${err.message || 'Please try again later'}</p>
+            </div>
+          `;
+        });
+    }
+
+    trainBtn.addEventListener("click", async () => {
+  startLoading();
+  try {
+    trainBtn.disabled = true;
+    trainBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin mr-2">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+      Training in progress...
+    `;
+    
+    const response = await axios.get(`http://localhost:8000/machine/train/${id}`);
+    
+    // Show success message without refreshing
+    const toast = document.createElement("div");
+    toast.className = "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center";
+    toast.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Training started successfully! Status will update automatically.
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+
+    // Update UI without refresh
+    updateTrainingStatus(true);
+    
+  } catch (err) {
+    console.error("Training error:", err);
+    const toast = document.createElement("div");
+    toast.className = "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center";
+    toast.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Training failed: ${err.response?.data?.message || err.message}
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  } finally {
+    stopLoading();
+    trainBtn.disabled = false;
+    trainBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+      </svg>
+      Start Training
+    `;
+  }
+});
+
+// Add this function to update the UI
+function updateTrainingStatus(isTrained) {
+  // Update status badge
+  const statusBadge = document.querySelector('.status-badge');
+  if (statusBadge) {
+    statusBadge.className = `status-badge ${isTrained ? 'status-trained' : 'status-untrained'}`;
+    statusBadge.textContent = isTrained ? 'Trained' : 'Not Trained';
+  }
+
+  // Update button visibility
+  if (isTrained) {
+    trainBtn.classList.add('hidden');
+    liveBtn.classList.remove('hidden');
+    moreBtn.classList.remove('hidden');
+    
+    // Animate the new buttons
+    gsap.from([liveBtn, moreBtn], {
+      duration: 0.5,
+      y: 20,
+      opacity: 0,
+      stagger: 0.1
+    });
+  } else {
+    trainBtn.classList.remove('hidden');
+    liveBtn.classList.add('hidden');
+    moreBtn.classList.add('hidden');
+  }
+}
+
+// Add periodic status check (optional)
+if (id) {
+  // Check training status every 5 seconds
+  setInterval(async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/machine/getmachine/${id}`);
+      const isTrained = response.data.data.data.machine_traine;
+      updateTrainingStatus(isTrained);
+    } catch (err) {
+      console.error("Status check error:", err);
+    }
+  }, 5000);
+}
+
+    liveBtn.addEventListener("click", () => {
+      localStorage.setItem("live_id", id);
+      window.location.href = "machine.live.html";
+    });
+
+    moreBtn.addEventListener("click", () => {
+      window.location.href= "past_data.html"
+    });
+  </script>
+
+  <script src="../js/navigation.js"></script>
+</body>
+</html>
